@@ -1,0 +1,31 @@
+setup_playground:
+  dr_credential:
+    name: rag_api_token # Cannot contain spaces for use in ML Ops
+    credential_type: api_token
+  playground:
+    name: ${globals:project_name} Playground
+  vector_database_settings:
+    max_documents_retrieved_per_prompt: 10
+  vector_database:
+    dataset_name: knowledge_base_dataset
+    name: vectorstore jina
+    chunking_parameters:
+      embedding_model: jinaai/jina-embedding-t-en-v1
+      chunking_method: recursive
+      chunk_size: 256
+      chunk_overlap_percentage: 10
+      separators: []
+    # - name: vectorstore jina overlap
+    #   chunking_parameters:
+    #     embedding_model: jinaai/jina-embedding-t-en-v1
+    #     chunking_method: recursive
+    #     chunk_size: 256
+    #     chunk_overlap_percentage: 20
+    #     separators: []
+  qa_pairs:
+    name: ${globals:project_name} QA Pairs
+  use_case:
+    name: ${globals:project_name} Use Case
+    description: |
+      AutoRAG ${globals:project_name} project
+  max_wait: 10000

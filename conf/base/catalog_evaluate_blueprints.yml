@@ -1,0 +1,11 @@
+# ===========================
+# Evaluate LLM blueprints
+# ===========================
+
+evaluate_blueprints.llm_blueprints:
+  type: kedro_datasets.yaml.YAMLDataset
+  filepath: data/outputs/llm_bp_ids.yml
+
+evaluate_blueprints.aggregation_dict:
+  type: kedro_datasets.yaml.YAMLDataset
+  filepath: data/outputs/llm_bp_scores.yml

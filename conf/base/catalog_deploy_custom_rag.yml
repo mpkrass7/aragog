@@ -1,0 +1,35 @@
+# ===============
+# Prep RAG assets
+# ===============
+
+deploy_custom_rag.doc_chunks:
+  type: kedro_datasets.json.JSONDataset
+  filepath: data/outputs/rag_doc_chunks.json
+
+deploy_custom_rag.custom_py:
+  type: datarobotx.idp.common.path_dataset.PathDataset
+  filepath: include/custom_rag/custom.py
+
+deploy_custom_rag.model_metadata_template:
+  type: kedro_datasets.text.TextDataset
+  filepath: include/custom_rag/model-metadata.yaml.jinja
+
+deploy_custom_rag.requirements:
+  type: datarobotx.idp.common.path_dataset.PathDataset
+  filepath: include/custom_rag/requirements.txt
+
+deploy_custom_rag.model_metadata:
+  type: datarobotx.idp.common.path_dataset.PathDataset
+  filepath: data/outputs/model-metadata.yaml
+
+deploy_custom_rag.vector_db_assets:
+  type: datarobotx.idp.common.archive_dataset.ArchiveDataset
+  filepath: data/outputs/rag_vector_db.tar.gz
+
+deploy_custom_rag.rag_deployment_assets:
+  type: datarobotx.idp.common.archive_dataset.ArchiveDataset
+  filepath: data/outputs/rag_deployment_assets.tar.gz
+
+deploy_custom_rag.registered_custom_model_version_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/registered_custom_model_version_id.txt

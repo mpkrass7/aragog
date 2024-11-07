@@ -1,0 +1,37 @@
+evaluate_blueprints:
+  playground:
+    name: ${globals:project_name} Playground
+  custom_model:
+    name: ${globals:project_name} RAG
+    target_name: completion
+    prompt_feature_name: promptText
+    base_environment_id: 65f9b27eab986d30d4c64268 # [GenAI] Python 3.11 with Moderations
+  llm_blueprints:
+    system_prompt: |-
+      Use the following pieces of context to answer the user's question.
+      If you don't know the answer, just say that you don't know, don't try to make up an answer.
+      ----------------
+      {context}
+    blueprints:
+      - name: gpt-35 turbo 10 docs
+        llm_settings:
+          max_completion_length: 512
+        llm:
+          id: "azure-openai-gpt-3.5-turbo"
+        vector_database_settings:
+          max_documents_retrieved_per_prompt: 10
+      - name: gpt-4o 10 docs
+        llm_settings:
+          max_completion_length: 512
+        llm:
+          id: "azure-openai-gpt-4-o"
+        vector_database_settings:
+          max_documents_retrieved_per_prompt: 10
+      - name: Claude3Haiku 5 docs
+        llm_settings:
+          max_completion_length: 512
+        llm:
+          id: "anthropic-claude-3-haiku"
+        vector_database_settings:
+          max_documents_retrieved_per_prompt: 5
+  max_wait: 10000

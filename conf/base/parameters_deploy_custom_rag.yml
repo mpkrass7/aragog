@@ -1,0 +1,23 @@
+deploy_custom_rag:
+  vectorstore:
+    sentence_transformer_model_name: all-MiniLM-L6-v2 # See https://www.sbert.net/docs/pretrained_models.html#pretrained-models
+    chunk_size: 2000
+    chunk_overlap: 1000
+  llm:
+    request_timeout_secs: 10
+    max_retries: 0
+    temperature: 0
+    stuff_prompt: |-
+      Use the following pieces of context to answer the user's question.
+      If you don't know the answer, just say that you don't know, don't try to make up an answer.
+      ----------------
+      {context}
+  custom_model:
+    name: ${globals:project_name} RAG
+    target_type: TextGeneration
+    target_name: completion
+    prompt_feature_name: promptText
+    base_environment_id: 64d2ba178dd3f0b1fa2162f0 # [GenAI] Python 3.11
+    deployment_name: ${globals:project_name} Custom RAG
+    registered_model_name: ${globals:project_name} Custom RAG
+  max_wait: 10000

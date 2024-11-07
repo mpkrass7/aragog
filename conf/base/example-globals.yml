@@ -1,0 +1,3 @@
+project_name:
+app_type: dr-qa # one of dr-qa | slackbot
+supporting_data: qa-pairs # one of qa-pairs | synthetic

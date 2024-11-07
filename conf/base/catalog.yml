@@ -1,0 +1,55 @@
+# This is a registry of files that can be used as node inputs or for storing node outputs.
+#
+# When defining node inputs in the pipeline, reference a key from this yaml to indicate
+# that the pipeline should map the file defined here to the node's input at runtime.
+# Similarly, node outputs can be mapped and persisted to files defined in this yaml.
+#
+# Please see the Kedro Data Catalog documentation to learn more
+# https://docs.kedro.org/en/stable/data/data_catalog.html
+
+rag_raw_docs:
+  type: datarobotx.idp.common.archive_dataset.ArchiveDataset
+  filepath: https://s3.amazonaws.com/datarobot_public_datasets/ai_accelerators/datarobot_english_documentation_docsassist.zip
+
+qa_pairs_dataset:
+  type: kedro_datasets.pandas.CSVDataset
+  filepath: include/qa_pairs/fifth_third.csv
+
+vector_database_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/vector_database_id.txt
+
+playground_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/playground_id.txt
+
+dr_credential_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/rag_dr_credential_id.txt
+
+rag_custom_model_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/custom_model_id.txt
+
+rag_custom_model_version_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/custom_model_version_id.txt
+
+custom_rag_deployment_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/custom_rag_deployment_id.txt
+
+application_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/application_id.txt
+
+best_bp_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/best_bp_id.txt
+
+# =====================================
+# Checksums for caching expensive nodes
+# =====================================
+"{node}_checksum":
+  type: kedro_datasets.text.TextDataset
+  filepath: "data/checksum/{node}_checksum.txt"

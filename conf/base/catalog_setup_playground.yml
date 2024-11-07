@@ -1,0 +1,15 @@
+# ===========================
+# Setup playground assets
+# ===========================
+
+setup_playground.use_case_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/use_case_id.txt
+
+setup_playground.vector_database_dataset_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/vector_database_dataset_id.txt
+
+setup_playground.qa_pairs_dataset_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/qa_pairs_dataset_id.txt

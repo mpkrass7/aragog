@@ -1,0 +1,15 @@
+# ==============================
+# Guardrail LLM Blueprint assets
+# ==============================
+
+prep_dr_rag_custom_model.custom_py:
+  type: kedro_datasets.text.TextDataset
+  filepath: include/custom_model_assets/custom.py
+
+prep_dr_rag_custom_model.dr_credential_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/dr_credential_id.txt
+
+prep_dr_rag_custom_model.llm_blueprint_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/llm_blueprint_id.txt
