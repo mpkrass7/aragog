@@ -69,7 +69,7 @@ def get_stack() -> str:
     )
 
 
-def set_credentials_from_env(path_to_credentials: Path, path_to_globals: Path) -> None:
+def set_credentials_from_env(path_to_globals: Path, path_to_credentials: Path) -> None:
 
     globals_data = {"project_name": get_stack()}
     with open(path_to_globals, "w") as f:

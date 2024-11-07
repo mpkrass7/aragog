@@ -15,6 +15,7 @@
 from pathlib import Path
 
 import datarobot as dr
+import dotenv
 import pulumi
 import pulumi_datarobot as datarobot
 
@@ -26,10 +27,12 @@ from pulumi_utils.helpers import (
 )
 
 project_name = get_stack()
+dotenv.load_dotenv()
+
 try:
     usecase_id = Path("data/outputs/use_case_id.txt").read_text()
     champion_rag_model_id = Path(
-        "data/outputs/registered_custom_model_version_id.txt"
+        "data/outputs/registered_champion_model_id.txt"
     ).read_text()
 except FileNotFoundError as e:
     print("Could not find required files. Attempting Kedro run first")

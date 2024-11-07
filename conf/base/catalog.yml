@@ -15,6 +15,14 @@ qa_pairs_dataset:
   type: kedro_datasets.pandas.CSVDataset
   filepath: include/qa_pairs/fifth_third.csv
 
+use_case_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/use_case_id.txt
+
+qa_pairs_dataset_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/qa_pairs_dataset_id.txt
+
 vector_database_id:
   type: kedro_datasets.text.TextDataset
   filepath: data/outputs/vector_database_id.txt
