@@ -51,9 +51,6 @@ application_id:
   type: kedro_datasets.text.TextDataset
   filepath: data/outputs/application_id.txt
 
-best_bp_id:
-  type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/best_bp_id.txt
 
 # =====================================
 # Checksums for caching expensive nodes

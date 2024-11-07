@@ -1,9 +1,9 @@
 name: aragog
 runtime:
   name: python
-  options:
-    toolchain: pip
-    virtualenv: .venv
+  # options:
+  #   toolchain: pip
+  #   virtualenv: .venv
 description: ARAGOG - RAG OG
 config:
   pulumi:tags:

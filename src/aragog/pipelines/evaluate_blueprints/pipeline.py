@@ -16,6 +16,9 @@ from kedro.pipeline.modular_pipeline import pipeline
 from datarobotx.idp.llm_blueprints import (
     get_or_register_llm_blueprint_custom_model_version,
 )
+from datarobotx.idp.registered_model_versions import (
+    get_or_create_registered_custom_model_version,
+)
 
 from .nodes import (
     add_custom_llm_to_playground,
@@ -147,7 +150,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                 outputs="custom_model_version_args",
             ),
             node(
-                name="register_champion_blueprint_id",
+                name="make_champion_blueprint_model_package",
                 func=get_or_register_llm_blueprint_custom_model_version,
                 inputs={
                     "endpoint": "params:credentials.datarobot.endpoint",
@@ -157,7 +160,22 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "prompt_column_name": "params:custom_model.prompt_feature_name",
                     "target_column_name": "params:custom_model.target_name",
                 },
-                outputs=["custom_champion_model_id", "registered_champion_model_id"],
+                outputs=[
+                    "custom_champion_model_id",
+                    "custom_champion_model_version_id",
+                ],
+            ),
+            node(
+                name="get_or_create_registered_model",
+                func=get_or_create_registered_custom_model_version,
+                inputs={
+                    "endpoint": "params:credentials.datarobot.endpoint",
+                    "token": "params:credentials.datarobot.api_token",
+                    "custom_model_version_id": "custom_champion_model_version_id",
+                    "registered_model_name": "params:registered_model_name",
+                    "max_wait": "params:max_wait",
+                },
+                outputs="registered_champion_model_id",
             ),
         ],
         inputs={
@@ -173,6 +191,5 @@ def create_pipeline(**kwargs) -> Pipeline:
             "params:credentials.datarobot.endpoint": "params:credentials.datarobot.endpoint",
             "params:credentials.datarobot.api_token": "params:credentials.datarobot.api_token",
             "params:credentials.azure_openai_llm_credentials.azure_endpoint": "params:credentials.azure_openai_llm_credentials.azure_endpoint",
-            "params:custom_model.base_environment_id": "params:deploy_custom_rag.custom_model.base_environment_id",
         },
     )

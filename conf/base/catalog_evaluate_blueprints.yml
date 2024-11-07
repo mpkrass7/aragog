@@ -10,6 +10,18 @@ evaluate_blueprints.aggregation_dict:
   type: kedro_datasets.yaml.YAMLDataset
   filepath: data/outputs/llm_bp_scores.yml
 
+evaluate_blueprints.best_bp_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/best_bp_id.txt
+
+evaluate_blueprints.custom_champion_model_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/custom_champion_model_id.txt
+
+evaluate_blueprints.custom_champion_model_version_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/custom_champion_model_version_id.txt
+
 evaluate_blueprints.registered_champion_model_id:
   type: kedro_datasets.text.TextDataset
   filepath: data/outputs/registered_champion_model_id.txt

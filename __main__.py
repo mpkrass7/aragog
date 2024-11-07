@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import os
 from pathlib import Path
 import subprocess
 
-import datarobot as dr
 import dotenv
 import pulumi
 import pulumi_datarobot as datarobot
@@ -30,58 +30,60 @@ from pulumi_utils.helpers import (
 project_name = get_stack()
 dotenv.load_dotenv()
 
+
+outputs_path = Path("data/outputs")
+usecase_id_path = outputs_path / "use_case_id.txt"
+champion_rag_model_id_path = outputs_path / "registered_champion_model_id.txt"
+rag_credential_path = outputs_path / "rag_dr_credential_id.txt"
+
 try:
-    usecase_id = Path("data/outputs/use_case_id.txt").read_text()
-    champion_rag_model_id = Path(
-        "data/outputs/registered_champion_model_id.txt"
-    ).read_text()
+    usecase_id = usecase_id_path.read_text()
+    champion_rag_model_id = champion_rag_model_id_path.read_text()
+    credential_id = rag_credential_path.read_text()
 except FileNotFoundError as e:
     print("Could not find required files. Attempting Kedro run first")
     path_to_globals = Path("conf/base/globals.yml")
     path_to_credentials = Path("conf/local/credentials.yml")
     set_credentials_from_env(path_to_globals, path_to_credentials)
     subprocess.run("kedro", "run", shell=True)
+    usecase_id = usecase_id_path.read_text()
+    champion_rag_model_id = champion_rag_model_id_path.read_text()
+    credential_id = rag_credential_path.read_text()
 
 
-# # Set prediction environment
-# prediction_environment = datarobot.PredictionEnvironment(
-#     resource_name="ARAGOG Prediction Environment",
-#     platform=dr.enums.PredictionEnvironmentPlatform.DATAROBOT_SERVERLESS,
-# )
+# Deploy Model
+deployment_name = f"{project_name} Deployment"
+champion_rag_model_deployment = datarobot.Deployment(
+    resource_name=deployment_name,
+    label=deployment_name,
+    registered_model_version_id=champion_rag_model_id,
+    prediction_environment_id=os.environ["DATAROBOT_PREDICTION_ENVIRONMENT_ID"],
+    use_case_ids=[usecase_id],
+)
+
+application_name = f"{project_name} Application"
+qa_application = datarobot.QaApplication(  # type: ignore[assignment]
+    resource_name=application_name,
+    name=application_name,
+    deployment_id=champion_rag_model_deployment.id,
+    opts=pulumi.ResourceOptions(delete_before_replace=True),
+    # use_case_ids=[usecase_id],
+)
 
 
-# # Deploy Model
-# deployment_name = f"{project_name} Deployment"
-# champion_rag_model_deployment = datarobot.Deployment(
-#     resource_name=deployment_name,
-#     label=deployment_name,
-#     registered_model_version_id=champion_rag_model_id,
-#     prediction_environment_id=os.environ['DATAROBOT_PREDICTION_ENVIRONMENT_ID'],
-#     use_case_ids=usecase_id,
-# )
+qa_application.id.apply(ensure_app_settings)
 
-# application_name = f"{project_name} Application"
-# qa_application = datarobot.QaApplication(  # type: ignore[assignment]
-#     resource_name=application_name,
-#     name=application_name,
-#     deployment_id=champion_rag_model_deployment.id,
-#     opts=pulumi.ResourceOptions(delete_before_replace=True),
-# )
+rag_deployment_env_name: str = "RAG_DEPLOYMENT_ID"
+app_env_name: str = "DATAROBOT_APPLICATION_ID"
 
+pulumi.export(rag_deployment_env_name, champion_rag_model_deployment.id)
+pulumi.export(app_env_name, qa_application.id)
 
-# qa_application.id.apply(ensure_app_settings)
-
-# rag_deployment_env_name: str = "RAG_DEPLOYMENT_ID"
-# app_env_name: str = "DATAROBOT_APPLICATION_ID"
-
-# pulumi.export(rag_deployment_env_name, champion_rag_model_deployment.id)
-# pulumi.export(app_env_name, qa_application.id)
-
-# pulumi.export(
-#     deployment_name,
-#     champion_rag_model_deployment.id.apply(get_deployment_url),
-# )
-# pulumi.export(
-#     application_name,
-#     qa_application.application_url,
-# )
+pulumi.export(
+    deployment_name,
+    champion_rag_model_deployment.id.apply(get_deployment_url),
+)
+pulumi.export(
+    application_name,
+    qa_application.application_url,
+)

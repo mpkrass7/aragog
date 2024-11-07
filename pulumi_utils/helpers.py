@@ -1,10 +1,12 @@
 import os
 from pathlib import Path
 import subprocess
+from typing import List, Optional
 from urllib.parse import urlsplit
 
 import datarobot as dr
 import pulumi
+import pulumi_datarobot as datarobot
 import yaml
 
 
