@@ -1,12 +1,10 @@
 import os
 from pathlib import Path
 import subprocess
-from typing import List, Optional
 from urllib.parse import urlsplit
 
 import datarobot as dr
 import pulumi
-import pulumi_datarobot as datarobot
 import yaml
 
 
@@ -33,6 +31,20 @@ def get_deployment_url(deployment_id: str) -> str:
     """
     parsed_dr_url = urlsplit(os.environ["DATAROBOT_ENDPOINT"])
     return f"{parsed_dr_url.scheme}://{parsed_dr_url.netloc}/console-nextgen/deployments/{deployment_id}/"
+
+
+def get_playground_url(use_case_id: str, playground_id: str) -> None:
+    """Translate use case id and playground id to GUI URL."""
+    playground_path = "usecases/{}/playgrounds/{}/info".format(
+        use_case_id, playground_id
+    )
+    parsed_dr_url = urlsplit(os.environ["DATAROBOT_ENDPOINT"])
+    return f"{parsed_dr_url.scheme}://{parsed_dr_url.netloc}/{playground_path}"
+
+
+use_case_path = (
+    "usecases/672cd0b02751e7110ac6bfad/playgrounds/672cd0bb51b5cf9e51cd58d7/info"
+)
 
 
 def get_stack() -> str:
