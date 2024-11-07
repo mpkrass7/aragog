@@ -181,6 +181,6 @@ conf/local/credentials.yml
 Pulumi.*.yaml
 .viz/*
 
-data/${globals:project_name}/*
+data/*
 include/custom_rag/sentencetransformers/*
 include/custom_rag/faiss_db/*
