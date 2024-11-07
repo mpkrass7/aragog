@@ -79,6 +79,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "token": "params:credentials.datarobot.api_token",
                     "use_case_id": "use_case_id",
                     "eval_dataset_id": "qa_pairs_dataset_id",
+                    "playground_id": "playground_id",
                 },
                 outputs="eval_config_id",
             ),

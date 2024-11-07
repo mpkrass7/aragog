@@ -53,10 +53,12 @@ def build_blueprints(
     return blueprints
 
 
-def _find_existing_eval_dataset(endpoint, token, use_case_id, eval_dataset_id) -> str:
+def _find_existing_eval_dataset(
+    endpoint, token, use_case_id, eval_dataset_id, playground_id
+) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
-    API_URL = f"genai/evaluationDatasetConfigurations/?useCaseId={use_case_id}&sort=creationDate&limit=20&completedOnly=false"
+    API_URL = f"genai/evaluationDatasetConfigurations/?useCaseId={use_case_id}&playgroundId={playground_id}&sort=creationDate&limit=20&completedOnly=false"
     response = client.get(API_URL).json()
     try:
         eval_ds = next(
@@ -70,13 +72,17 @@ def _find_existing_eval_dataset(endpoint, token, use_case_id, eval_dataset_id) -
 
 
 def get_or_create_eval_dataset(
-    endpoint: str, token: str, use_case_id: str, eval_dataset_id: str
+    endpoint: str,
+    token: str,
+    use_case_id: str,
+    eval_dataset_id: str,
+    playground_id: str,
 ) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
     try:
         return _find_existing_eval_dataset(
-            endpoint, token, use_case_id, eval_dataset_id
+            endpoint, token, use_case_id, eval_dataset_id, playground_id
         )
 
     except KeyError:
@@ -87,6 +93,7 @@ def get_or_create_eval_dataset(
                 "useCaseId": use_case_id,
                 "isSyntheticDataset": "false",
                 "datasetId": eval_dataset_id,
+                "playgroundId": playground_id,
                 "promptColumnName": "requierment",
                 "responseColumnName": "response",
                 "correctnessEnabled": "true",

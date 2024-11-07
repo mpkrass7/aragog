@@ -17,22 +17,25 @@ from pathlib import Path
 import datarobot as dr
 import pulumi
 import pulumi_datarobot as datarobot
-import yaml
 
-from pulumi_utils.helpers import ensure_app_settings, get_deployment_url
+from pulumi_utils.helpers import (
+    ensure_app_settings,
+    get_deployment_url,
+    get_stack,
+    set_credentials_from_env,
+)
 
+project_name = get_stack()
 try:
     usecase_id = Path("data/outputs/use_case_id.txt").read_text()
     champion_rag_model_id = Path(
         "data/outputs/registered_custom_model_version_id.txt"
     ).read_text()
-    with open(Path("conf/base/globals.yml")) as f:
-        globals = yaml.safe_load(f)
-        project_name = globals["project_name"]
 except FileNotFoundError as e:
-    raise FileNotFoundError(
-        "The champion RAG model was not found in the outputs. Please run the 'kedro' pipeline."
-    ) from e
+    print("Could not find required files. Attempting Kedro run first")
+    path_to_globals = Path("conf/base/globals.yml")
+    path_to_credentials = Path("conf/local/credentials.yml")
+    set_credentials_from_env(path_to_globals, path_to_credentials)
 
 
 # Set prediction environment
