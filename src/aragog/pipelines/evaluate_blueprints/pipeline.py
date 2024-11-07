@@ -95,12 +95,9 @@ def create_pipeline(**kwargs) -> Pipeline:
                 inputs={
                     "endpoint": "params:credentials.datarobot.endpoint",
                     "token": "params:credentials.datarobot.api_token",
-                    "use_case_id": "use_case_id",
                     "playground_id": "playground_id",
-                    "eval_config_id": "eval_config_id",
-                    "blueprints": "combined_bps",
                 },
-                outputs="correctness_is_toggled",
+                outputs="correctness_config_id",
             ),
             node(
                 name="run_correctness",
@@ -111,7 +108,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "llm_bp_ids": "combined_bps",
                     "eval_config_id": "eval_config_id",
                     "eval_dataset_id": "qa_pairs_dataset_id",
-                    "correctness_is_toggled": "correctness_is_toggled",
+                    "correctness_config_id": "correctness_config_id",
                 },
                 outputs="aggregation_dict",
             ),

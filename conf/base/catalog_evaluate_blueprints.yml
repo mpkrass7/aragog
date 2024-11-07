@@ -14,6 +14,10 @@ evaluate_blueprints.custom_llm_id:
   type: kedro_datasets.text.TextDataset
   filepath: data/${globals:project_name}/outputs/custom_llm_id.txt
 
+evaluate_blueprints.combined_bps:
+  type: kedro_datasets.yaml.YAMLDataset
+  filepath: data/${globals:project_name}/outputs/combine_bps.yaml
+
 evaluate_blueprints.aggregation_dict:
   type: kedro_datasets.yaml.YAMLDataset
   filepath: data/${globals:project_name}/outputs/llm_bp_scores.yml

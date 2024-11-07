@@ -15,17 +15,6 @@ from datarobotx.idp.llm_blueprints import (
     get_or_create_llm_blueprint,
 )
 
-{
-    "endpoint": "params:credentials.datarobot.endpoint",
-    "token": "params:credentials.datarobot.api_token",
-    "playground": "playground_id",
-    "name": "params:llm_blueprint.name",
-    "llm": "params:llm_blueprint.llm.id",
-    "llm_settings": "params:llm_blueprint.llm_settings",
-    "vector_database": "vector_database_id",
-    "vector_database_settings": "params:llm_blueprint.vector_database_settings",
-}
-
 
 def build_blueprints(
     endpoint: str,
@@ -103,17 +92,15 @@ def get_or_create_eval_dataset(
         return eval_config_id
 
 
-def _get_existing_insights_config(endpoint: str, token: str, playground_id: str) -> str:
+def _get_existing_insights_config(endpoint, token, playground_id) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
-    try:
-        # get existing configurations
-        API_URL = f"genai/insights/{playground_id}/?withAggregationTypesOnly=false"
-        response = client.get(API_URL).json()
-    except dr.errors.ClientError as e:  # Staging route
-        API_URL = f"genai/playgrounds/{playground_id}/supportedInsights/?withAggregationTypesOnly=false&productionOnly=false"
-
-        response = client.get(API_URL).json()
+    # get existing configurations
+    # if endpoint == 'https://app.datarobot.com/api/v2':
+    #     API_URL = f'genai/insights/{playground_id}/?withAggregationTypesOnly=false'
+    # elif endpoint == 'https://staging.datarobot.com/api/v2':
+    API_URL = f"genai/playgrounds/{playground_id}/supportedInsights/?withAggregationTypesOnly=false&productionOnly=false"
+    response = client.get(API_URL).json()
 
     # drop None types from config
     insights_config = []
@@ -123,48 +110,42 @@ def _get_existing_insights_config(endpoint: str, token: str, playground_id: str)
     return insights_config
 
 
-def toggle_correctness(
-    endpoint: str,
-    token: str,
-    use_case_id: str,
-    playground_id: str,
-    eval_config_id: str,
-    blueprints: list[str],
-) -> str:
-    assert len(blueprints) > 0
+def toggle_correctness(endpoint, token, playground_id) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
     # get existing config
     config = _get_existing_insights_config(endpoint, token, playground_id)
 
     # add on correctness if not already existing
-    if "correctness" not in [c["insightName"] for c in config]:
+    if "correctness" not in [c.get("insightName", "") for c in config]:
 
-        # add correctness to config
-        config.append(
-            {
-                "insightName": "correctness",
-                "insightType": "Quality metric",
-                "evaluationDatasetConfigurationId": eval_config_id,
-                "executionStatus": "COMPLETED",
-                "aggregationTypes": ["average"],
-            }
-        )
+        # only keep correctness moderation FOR NOW
+        config = {
+            "ootbMetricConfigurations": [
+                {
+                    "ootbMetricName": "correctness",
+                    "customOotbMetricName": "Correctness",
+                    "llmId": "azure-openai-gpt-4-o",
+                }
+            ]
+        }
 
-        API_URL = "genai/insights/"
-        client.post(
-            url=API_URL,
-            data={
-                "useCaseId": use_case_id,
-                "playgroundId": playground_id,
-                "insightsConfiguration": config,
-            },
-        ).json()
-    return True
+        API_URL = f"genai/playgrounds/{playground_id}/ootbMetricConfigurations/"
+
+        response = client.post(url=API_URL, data=config).json()
+
+        correctness_config_id = response["ootbMetricConfigurations"][0][
+            "ootbMetricConfigurationId"
+        ]
+
+    else:
+        correctness_config_id = config["ootbMetricId"]
+
+    return correctness_config_id
 
 
 def _find_existing_correctness_aggregation(
-    endpoint, token, llm_bp_id, eval_config_id
+    endpoint, token, llm_bp_id, eval_config_id, eval_dataset_id
 ) -> dict:
     client = dr.Client(endpoint=endpoint, token=token)
 
@@ -177,6 +158,7 @@ def _find_existing_correctness_aggregation(
             agg
             for agg in configs
             if agg["evaluationDatasetConfigurationId"] == eval_config_id
+            and agg["datasetId"] == eval_dataset_id
         )
         return aggregation
     except StopIteration:
@@ -202,36 +184,45 @@ def _wait_for_chat_completion(
 
 
 def run_correctness_aggregation(
-    endpoint, token, llm_bp_id, eval_config_id, eval_dataset_id
+    endpoint,
+    token,
+    llm_bp_id,
+    eval_config_id,
+    eval_dataset_id,
+    correctness_config_id,
 ) -> dict:
+
     try:
         aggregation = _find_existing_correctness_aggregation(
-            endpoint, token, llm_bp_id, eval_config_id
+            endpoint, token, llm_bp_id, eval_config_id, eval_dataset_id
         )
 
     except KeyError:
+
         # kick off evaluation
         client = dr.Client(endpoint=endpoint, token=token)
 
         API_URL = "genai/evaluationDatasetMetricAggregations/"
         chat_name = f"Aggregated metrics {datetime.now():%Y-%m-%d %H:%M:%S}"
-        response = client.post(
-            url=API_URL,
-            data={
-                "chatName": chat_name,
-                "llmBlueprintIds": [llm_bp_id],
-                "evaluationDatasetConfigurationId": eval_config_id,
-                "insightsConfiguration": [
-                    {
-                        "insightName": "correctness",
-                        "insightType": "Quality metric",
-                        "evaluationDatasetConfigurationId": eval_config_id,
-                        "executionStatus": "COMPLETED",
-                        "aggregationTypes": ["average"],
-                    }
-                ],
-            },
-        ).json()
+
+        data = {
+            "chatName": chat_name,
+            "llmBlueprintIds": [llm_bp_id],
+            "evaluationDatasetConfigurationId": eval_config_id,
+            "insightsConfiguration": [
+                {
+                    "insightName": "Correctness",
+                    "insightType": "Quality metric",
+                    "ootbMetricId": correctness_config_id,
+                    "ootbMetricName": "correctness",
+                    "llmId": "azure-openai-gpt-4-o",
+                    "stage": "response_pipeline",
+                    "aggregationTypes": ["average"],
+                }
+            ],
+        }
+        response = client.post(url=API_URL, data=data).json()
+
         chat_id = response["chatIds"][0]
 
         # wait for chats to complete
@@ -261,13 +252,17 @@ def run_all_aggregations(
     llm_bp_ids: list[str],
     eval_config_id: str,
     eval_dataset_id: str,
-    correctness_is_toggled: bool,
+    correctness_config_id: str,
 ) -> dict:
-    assert correctness_is_toggled
     agg_stats = {}
     for bp_id in llm_bp_ids:
         run_correctness_aggregation(
-            endpoint, token, bp_id, eval_config_id, eval_dataset_id
+            endpoint,
+            token,
+            bp_id,
+            eval_config_id,
+            eval_dataset_id,
+            correctness_config_id,
         )
         score = get_correctness_score(endpoint, token, bp_id, eval_config_id)
         agg_stats[bp_id] = score
