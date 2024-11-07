@@ -138,7 +138,10 @@ def toggle_correctness(
     config = _get_existing_insights_config(endpoint, token, playground_id)
 
     # add on correctness if not already existing
-    if "correctness" not in [c["insightName"] for c in config]:
+    if "correctness" not in [
+        c["insightName"] for c in config
+    ] and "correctness" not in [c["ootbMetricName"] for c in config]:
+
         # add correctness to config
         config.append(
             {
@@ -150,7 +153,6 @@ def toggle_correctness(
             }
         )
 
-        # now add
         API_URL = "genai/insights/"
         client.post(
             url=API_URL,
@@ -160,7 +162,6 @@ def toggle_correctness(
                 "insightsConfiguration": config,
             },
         ).json()
-
     return True
 
 

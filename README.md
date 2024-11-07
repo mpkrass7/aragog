@@ -15,8 +15,11 @@ Do I even need to answer? DataRobot is the AutoML platform. Helping people pick 
 ## Getting started
 
 1. Clone the repo
-2. (recommended) Set up a virtual environment
+2. (if needed) Set up a virtual environment
 3. `pip install -r requirements.txt`
-4. Set credentials in `conf/local/credentials.yml`. An `example-credentials.yml` file has been provided
-5. Set your project name in `conf/base/globals.yml`
-6. `kedro run`
+4. Fill out your `.env` file
+5. `pulumi login --local`
+6. `source set_env.sh`
+7. Initialize a stack with `pulumi stack init`
+8. Run the kedro pipeline with `kedro run`
+9. Build the deployment and app with `pulumi up`
