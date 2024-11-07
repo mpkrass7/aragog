@@ -98,6 +98,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "use_case_id": "use_case_id",
                     "playground_id": "playground_id",
                     "eval_config_id": "eval_config_id",
+                    "blueprints": "combined_bps",
                 },
                 outputs="correctness_is_toggled",
             ),

@@ -167,7 +167,8 @@ cython_debug/
 .vscode/
 
 tests/output/
-.env*
+.env
+.env.staging
 deployment_diy_rag/faiss_db/
 deployment_diy_rag/sentencetransformers/
 deployment_diy_rag/rag_settings.yaml

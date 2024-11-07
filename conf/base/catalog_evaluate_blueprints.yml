@@ -2,9 +2,17 @@
 # Evaluate LLM blueprints
 # ===========================
 
+evaluate_blueprints.eval_config_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/${globals:project_name}/outputs/eval_config_id.txt
+
 evaluate_blueprints.llm_blueprints:
   type: kedro_datasets.yaml.YAMLDataset
   filepath: data/${globals:project_name}/outputs/llm_bp_ids.yml
+
+evaluate_blueprints.custom_llm_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/${globals:project_name}/outputs/custom_llm_id.txt
 
 evaluate_blueprints.aggregation_dict:
   type: kedro_datasets.yaml.YAMLDataset

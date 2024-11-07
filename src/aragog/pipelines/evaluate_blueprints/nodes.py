@@ -106,9 +106,14 @@ def get_or_create_eval_dataset(
 def _get_existing_insights_config(endpoint: str, token: str, playground_id: str) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
-    # get existing configurations
-    API_URL = f"genai/insights/{playground_id}/?withAggregationTypesOnly=false"
-    response = client.get(API_URL).json()
+    try:
+        # get existing configurations
+        API_URL = f"genai/insights/{playground_id}/?withAggregationTypesOnly=false"
+        response = client.get(API_URL).json()
+    except dr.errors.ClientError as e:  # Staging route
+        API_URL = f"genai/playgrounds/{playground_id}/supportedInsights/?withAggregationTypesOnly=false&productionOnly=false"
+
+        response = client.get(API_URL).json()
 
     # drop None types from config
     insights_config = []
@@ -119,8 +124,14 @@ def _get_existing_insights_config(endpoint: str, token: str, playground_id: str)
 
 
 def toggle_correctness(
-    endpoint: str, token: str, use_case_id: str, playground_id: str, eval_config_id: str
+    endpoint: str,
+    token: str,
+    use_case_id: str,
+    playground_id: str,
+    eval_config_id: str,
+    blueprints: list[str],
 ) -> str:
+    assert len(blueprints) > 0
     client = dr.Client(endpoint=endpoint, token=token)
 
     # get existing config
@@ -140,7 +151,7 @@ def toggle_correctness(
         )
 
         # now add
-        API_URL = "https://app.datarobot.com/api/v2/genai/insights/"
+        API_URL = "genai/insights/"
         client.post(
             url=API_URL,
             data={
