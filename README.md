@@ -6,6 +6,8 @@ Welcome to the repo for the first repeatable attempt at AutoLM selection
 
 AutoRAG is a project that aims to automate the process of creating and deploying a QA Bot with all the functionality available within the DataRobot platform. This includes multiple basic RAG setups and vector stores as well as a few custom RAG setups. Each of these will be evaluated against a dataset of QA Pairs.
 
+![AutoRAG](./aragog-kedro-viz.gif)
+
 ## Why AutoRAG
 
 Do I even need to answer? DataRobot is the AutoML platform. Helping people pick the best language model is the next logical step in the process
