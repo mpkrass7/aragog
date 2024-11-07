@@ -13,10 +13,14 @@ generated using Kedro 0.19.3
 from kedro.pipeline import Pipeline, node
 from kedro.pipeline.modular_pipeline import pipeline
 
+from datarobotx.idp.llm_blueprints import (
+    get_or_register_llm_blueprint_custom_model_version,
+)
+
 from .nodes import (
     add_custom_llm_to_playground,
     build_blueprints,
-    get_max_score,
+    get_best_blueprint,
     get_or_create_eval_dataset,
     run_all_aggregations,
     toggle_correctness,
@@ -93,7 +97,7 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "playground_id": "playground_id",
                     "eval_config_id": "eval_config_id",
                 },
-                outputs=None,
+                outputs="correctness_is_toggled",
             ),
             node(
                 name="run_correctness",
@@ -104,14 +108,56 @@ def create_pipeline(**kwargs) -> Pipeline:
                     "llm_bp_ids": "combined_bps",
                     "eval_config_id": "eval_config_id",
                     "eval_dataset_id": "qa_pairs_dataset_id",
+                    "correctness_is_toggled": "correctness_is_toggled",
                 },
                 outputs="aggregation_dict",
             ),
             node(
                 name="get_best_blueprint",
-                func=get_max_score,
-                inputs={"score_dict": "aggregation_dict"},
+                func=get_best_blueprint,
+                inputs={
+                    "endpoint": "params:credentials.datarobot.endpoint",
+                    "token": "params:credentials.datarobot.api_token",
+                    "score_dict": "aggregation_dict",
+                },
                 outputs="best_bp_id",
+            ),
+            node(
+                name="make_custom_model_version_args",
+                func=lambda credential_id, azure_endpoint, base_environment_id: {
+                    "runtime_parameter_values": [
+                        {
+                            "field_name": "OPENAI_API_KEY",
+                            "type": "credential",
+                            "value": credential_id,
+                        },
+                        {
+                            "field_name": "OPENAI_API_BASE",
+                            "type": "string",
+                            "value": azure_endpoint,
+                        },
+                    ],
+                    "base_environment_id": base_environment_id,
+                },
+                inputs={
+                    "credential_id": "dr_credential_id",
+                    "azure_endpoint": "params:credentials.azure_openai_llm_credentials.azure_endpoint",
+                    "base_environment_id": "params:custom_model.base_environment_id",
+                },
+                outputs="custom_model_version_args",
+            ),
+            node(
+                name="register_champion_blueprint_id",
+                func=get_or_register_llm_blueprint_custom_model_version,
+                inputs={
+                    "endpoint": "params:credentials.datarobot.endpoint",
+                    "token": "params:credentials.datarobot.api_token",
+                    "llm_blueprint_id": "best_bp_id",
+                    "custom_model_version_kwargs": "custom_model_version_args",
+                    "prompt_column_name": "params:custom_model.prompt_feature_name",
+                    "target_column_name": "params:custom_model.target_name",
+                },
+                outputs=["custom_champion_model_id", "registered_champion_model_id"],
             ),
         ],
         inputs={
@@ -120,11 +166,13 @@ def create_pipeline(**kwargs) -> Pipeline:
             "use_case_id",
             "qa_pairs_dataset_id",
             "custom_rag_deployment_id",
+            "dr_credential_id",
         },
         namespace="evaluate_blueprints",
         parameters={
             "params:credentials.datarobot.endpoint": "params:credentials.datarobot.endpoint",
             "params:credentials.datarobot.api_token": "params:credentials.datarobot.api_token",
+            "params:credentials.azure_openai_llm_credentials.azure_endpoint": "params:credentials.azure_openai_llm_credentials.azure_endpoint",
+            "params:custom_model.base_environment_id": "params:deploy_custom_rag.custom_model.base_environment_id",
         },
-        outputs={"best_bp_id"},
     )

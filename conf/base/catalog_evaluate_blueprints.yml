@@ -9,3 +9,7 @@ evaluate_blueprints.llm_blueprints:
 evaluate_blueprints.aggregation_dict:
   type: kedro_datasets.yaml.YAMLDataset
   filepath: data/outputs/llm_bp_scores.yml
+
+evaluate_blueprints.registered_champion_model_id:
+  type: kedro_datasets.text.TextDataset
+  filepath: data/outputs/registered_champion_model_id.txt

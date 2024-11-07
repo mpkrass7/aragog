@@ -120,7 +120,7 @@ def _get_existing_insights_config(endpoint: str, token: str, playground_id: str)
 
 def toggle_correctness(
     endpoint: str, token: str, use_case_id: str, playground_id: str, eval_config_id: str
-) -> None:
+) -> str:
     client = dr.Client(endpoint=endpoint, token=token)
 
     # get existing config
@@ -150,7 +150,7 @@ def toggle_correctness(
             },
         ).json()
 
-    return None
+    return True
 
 
 def _find_existing_correctness_aggregation(
@@ -235,7 +235,9 @@ def run_correctness_aggregation(
     return aggregation
 
 
-def get_correctness_score(endpoint, token, llm_bp_id, eval_config_id) -> float:
+def get_correctness_score(
+    endpoint: str, token: str, llm_bp_id, eval_config_id
+) -> float:
     aggregation = _find_existing_correctness_aggregation(
         endpoint, token, llm_bp_id, eval_config_id
     )
@@ -244,8 +246,14 @@ def get_correctness_score(endpoint, token, llm_bp_id, eval_config_id) -> float:
 
 
 def run_all_aggregations(
-    endpoint, token, llm_bp_ids, eval_config_id, eval_dataset_id
+    endpoint: str,
+    token: str,
+    llm_bp_ids: list[str],
+    eval_config_id: str,
+    eval_dataset_id: str,
+    correctness_is_toggled: bool,
 ) -> dict:
+    assert correctness_is_toggled
     agg_stats = {}
     for bp_id in llm_bp_ids:
         run_correctness_aggregation(
@@ -255,10 +263,6 @@ def run_all_aggregations(
         agg_stats[bp_id] = score
 
     return agg_stats
-
-
-def get_max_score(score_dict) -> str:
-    return max(score_dict, key=score_dict.get)
 
 
 def _find_existing_llm_validation(endpoint, token, use_case_id, deployment_id):
@@ -372,6 +376,12 @@ def add_custom_llm_to_playground(
     return custom_model_llm_blueprint.id
 
 
-def combine_bps(bp_list, custom_bp) -> list:
-    new_list = bp_list + [custom_bp]
-    return new_list
+def get_best_blueprint(endpoint: str, token: str, score_dict: dict[str, float]) -> str:
+
+    client = dr.Client(endpoint=endpoint, token=token)
+    best_bp_id = max(score_dict, key=score_dict.get)
+
+    patch_route = f"genai/llmBlueprints/{best_bp_id}/"
+    client.patch(patch_route, data={"isStarred": True})
+
+    return best_bp_id
