@@ -10,15 +10,14 @@ This is a boilerplate pipeline 'prep_dr_rag_custom_model'
 generated using Kedro 0.19.3
 """
 
-from kedro.pipeline import Pipeline, node
-from kedro.pipeline.modular_pipeline import pipeline
-
 from datarobotx.idp.llm_blueprints import (
     get_or_register_llm_blueprint_custom_model_version,
 )
 from datarobotx.idp.registered_model_versions import (
     get_or_create_registered_custom_model_version,
 )
+from kedro.pipeline import Pipeline, node
+from kedro.pipeline.modular_pipeline import pipeline
 
 from .nodes import (
     add_custom_llm_to_playground,
@@ -35,7 +34,7 @@ def create_pipeline(**kwargs) -> Pipeline:
     return pipeline(
         [
             node(
-                name="create_pre_baked_blueprints",
+                name="make_blueprints",
                 func=build_blueprints,
                 inputs={
                     "endpoint": "params:credentials.datarobot.endpoint",

@@ -56,6 +56,18 @@ load_env_file() {
     echo "Environment variables from .env have been set."
 }
 
+load_staging_env_file() {
+    if [ ! -f .env.staging ]; then
+        echo "Error: .env file not found."
+        echo "Please create a .env file with VAR_NAME=value pairs."
+        return 1
+    fi
+    set -a
+    source .env.staging
+    set +a
+    echo "Environment variables from .env have been set."
+}
+
 # Function to activate the virtual environment if it exists
 activate_virtual_environment() {
     if [ -f .venv/bin/activate ]; then

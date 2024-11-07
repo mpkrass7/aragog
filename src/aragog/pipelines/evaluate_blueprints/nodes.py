@@ -377,7 +377,6 @@ def add_custom_llm_to_playground(
 
 
 def get_best_blueprint(endpoint: str, token: str, score_dict: dict[str, float]) -> str:
-
     client = dr.Client(endpoint=endpoint, token=token)
     best_bp_id = max(score_dict, key=score_dict.get)
 

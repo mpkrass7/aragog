@@ -5,7 +5,7 @@
 # Similarly, node outputs can be mapped and persisted to files defined in this yaml.
 #
 # Please see the Kedro Data Catalog documentation to learn more
-# https://docs.kedro.org/en/stable/data/data_catalog.html
+# https://docs.kedro.org/en/stable/data/${globals:project_name}/data_catalog.html
 
 rag_raw_docs:
   type: datarobotx.idp.common.archive_dataset.ArchiveDataset
@@ -17,44 +17,43 @@ qa_pairs_dataset:
 
 use_case_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/use_case_id.txt
+  filepath: data/${globals:project_name}/outputs/use_case_id.txt
 
 qa_pairs_dataset_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/qa_pairs_dataset_id.txt
+  filepath: data/${globals:project_name}/outputs/qa_pairs_dataset_id.txt
 
 vector_database_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/vector_database_id.txt
+  filepath: data/${globals:project_name}/outputs/vector_database_id.txt
 
 playground_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/playground_id.txt
+  filepath: data/${globals:project_name}/outputs/playground_id.txt
 
 dr_credential_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/rag_dr_credential_id.txt
+  filepath: data/${globals:project_name}/outputs/rag_dr_credential_id.txt
 
 rag_custom_model_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/custom_model_id.txt
+  filepath: data/${globals:project_name}/outputs/custom_model_id.txt
 
 rag_custom_model_version_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/custom_model_version_id.txt
+  filepath: data/${globals:project_name}/outputs/custom_model_version_id.txt
 
 custom_rag_deployment_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/custom_rag_deployment_id.txt
+  filepath: data/${globals:project_name}/outputs/custom_rag_deployment_id.txt
 
 application_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/application_id.txt
-
+  filepath: data/${globals:project_name}/outputs/application_id.txt
 
 # =====================================
 # Checksums for caching expensive nodes
 # =====================================
 "{node}_checksum":
   type: kedro_datasets.text.TextDataset
-  filepath: "data/checksum/{node}_checksum.txt"
+  filepath: "data/${globals:project_name}/checksum/{node}_checksum.txt"

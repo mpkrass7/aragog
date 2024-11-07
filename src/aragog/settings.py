@@ -56,7 +56,14 @@ from pathlib import Path  # noqa: E402
 import yaml  # noqa: E402
 from kedro.utils import _find_kedro_project  # noqa: E402
 
+from .pulumi_utils.helpers import set_credentials_from_env  # noqa: E402
+
 project_root = _find_kedro_project(Path(".").resolve())
+
+
+path_to_globals = Path("conf/base/globals.yml")
+path_to_credentials = Path("conf/local/credentials.yml")
+set_credentials_from_env(path_to_globals, path_to_credentials)
 
 with open(project_root / "conf/base/globals.yml") as f:
     global_params = yaml.safe_load(f)

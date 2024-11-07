@@ -19,22 +19,17 @@ import dotenv
 import pulumi
 import pulumi_datarobot as datarobot
 
-from pulumi_utils.helpers import (
+from src.aragog.pulumi_utils.helpers import (
     ensure_app_settings,
     get_deployment_url,
     get_playground_url,
     get_stack,
-    set_credentials_from_env,
 )
 
 project_name = get_stack()
 dotenv.load_dotenv()
 
-path_to_globals = Path("conf/base/globals.yml")
-path_to_credentials = Path("conf/local/credentials.yml")
-set_credentials_from_env(path_to_globals, path_to_credentials)
-
-outputs_path = Path("data/outputs")
+outputs_path = Path(f"data/{project_name}/outputs")
 usecase_id_path = outputs_path / "use_case_id.txt"
 champion_rag_model_id_path = outputs_path / "registered_champion_model_id.txt"
 playground_id_path = outputs_path / "playground_id.txt"
@@ -47,21 +42,9 @@ try:
     champion_rag_model_id = champion_rag_model_id_path.read_text()
 
 except FileNotFoundError as e:
-
     raise FileNotFoundError(
         "Could not find required files. Have you run the Kedro project yet?"
     ) from e
-    # from kedro.framework.session import KedroSession
-    # from kedro.framework.startup import bootstrap_project
-
-    # bootstrap_project(Path("."))
-    # with KedroSession.create() as session:
-    #     session.run()
-
-    # usecase_id = usecase_id_path.read_text()
-    # playground_id = playground_id_path.read_text()
-    # credential_id = rag_credential_path.read_text()
-    # champion_rag_model_id = champion_rag_model_id_path.read_text()
 
 # Deploy Model
 deployment_name = f"{project_name} Deployment"
@@ -82,18 +65,12 @@ qa_application = datarobot.QaApplication(  # type: ignore[assignment]
     # use_case_ids=[usecase_id],
 )
 
-
 qa_application.id.apply(ensure_app_settings)
 
-use_case_env_name: str = "USE_CASE_ID"
-playground_env_name: str = "PLAYGROUND_ID"
-rag_deployment_env_name: str = "RAG_DEPLOYMENT_ID"
-app_env_name: str = "DATAROBOT_APPLICATION_ID"
-
-pulumi.export(use_case_env_name, usecase_id)
-pulumi.export(playground_env_name, playground_id)
-pulumi.export(rag_deployment_env_name, champion_rag_model_deployment.id)
-pulumi.export(app_env_name, qa_application.id)
+pulumi.export("USE_CASE_ID", usecase_id)
+pulumi.export("PLAYGROUND_ID", playground_id)
+pulumi.export("RAG_DEPLOYMENT_ID", champion_rag_model_deployment.id)
+pulumi.export("DATAROBOT_APPLICATION_ID", qa_application.id)
 
 pulumi.export(
     f"{project_name} Playground", get_playground_url(usecase_id, playground_id)

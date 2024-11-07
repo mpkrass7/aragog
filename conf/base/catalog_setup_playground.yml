@@ -4,4 +4,4 @@
 
 setup_playground.vector_database_dataset_id:
   type: kedro_datasets.text.TextDataset
-  filepath: data/outputs/vector_database_dataset_id.txt
+  filepath: data/${globals:project_name}/outputs/vector_database_dataset_id.txt
