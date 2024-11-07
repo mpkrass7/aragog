@@ -12,7 +12,6 @@ kedro-viz
 pydantic>=2.9.2
 pydantic-settings>=2.5.2
 eval_type_backport>=0.2.0
-python-magic-bin==0.4.14
 
 # Constrained by datarobot-drum
 pandas>=2.0.3,<3
