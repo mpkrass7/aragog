@@ -230,17 +230,17 @@ def run_correctness_aggregation(
 
         # get aggregated correctness score
         aggregation = _find_existing_correctness_aggregation(
-            endpoint, token, llm_bp_id, eval_config_id
+            endpoint, token, llm_bp_id, eval_config_id, eval_dataset_id
         )
 
     return aggregation
 
 
 def get_correctness_score(
-    endpoint: str, token: str, llm_bp_id, eval_config_id
+    endpoint: str, token: str, llm_bp_id, eval_config_id, eval_dataset_id
 ) -> float:
     aggregation = _find_existing_correctness_aggregation(
-        endpoint, token, llm_bp_id, eval_config_id
+        endpoint, token, llm_bp_id, eval_config_id, eval_dataset_id
     )
     agg_value = aggregation["aggregationValue"]
     return agg_value
@@ -264,7 +264,9 @@ def run_all_aggregations(
             eval_dataset_id,
             correctness_config_id,
         )
-        score = get_correctness_score(endpoint, token, bp_id, eval_config_id)
+        score = get_correctness_score(
+            endpoint, token, bp_id, eval_config_id, eval_dataset_id
+        )
         agg_stats[bp_id] = score
 
     return agg_stats
